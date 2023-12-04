@@ -1,0 +1,30 @@
+{{- if .Values.models }}
+{{- if gt (len .Values.models) 0 }}
+{{- $root := . }}
+{{- range .Values.models }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "local-ai.fullname" $root }}-{{ include "local-ai.sanitizeName" .name }}
+  namespace: {{ $root.Release.Namespace | quote }}
+  labels:
+    {{- include "local-ai.labels" $ | nindent 4 }}
+{{- if $root.Values.service.annotations }}
+annotations:
+  {{- toYaml $root.Values.service.annotations | nindent 4 }}
+{{- end }}
+spec:
+  selector:
+    app.kubernetes.io/name: {{ include "local-ai.name" $ }}
+    app.kubernetes.io/instance: {{ include "local-ai.name" $ }}
+    model: {{ .name }}
+  type: "{{ $root.Values.service.type }}"
+  ports:
+    - protocol: TCP
+      port: {{ $root.Values.service.port }}
+      targetPort: 8080
+      name: http
+---
+{{- end }}
+{{- end }}
+{{- end }}

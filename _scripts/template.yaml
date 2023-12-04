@@ -1,0 +1,49 @@
+awsRegion: us-example-1
+replicaCount: 1
+deployment:
+  image: quay.io/go-skynet/local-ai:latest # quay.io/go-skynet/local-ai:v1.40.0-cublas-cuda12
+  env:
+    context_size: 1024
+  modelsPath: "/models"
+forceDownload: false
+service:
+  type: ClusterIP
+  port: 80
+  metadata:
+  namespace: default
+  annotations: {}
+ingress:
+  enabled: true
+  className: "alb"
+  metadata:
+    name: alb-ingress
+    namespace: default
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/certificate-arn: >-
+      arn:aws:acm:us-example-1:123456789012:certificate/12345678-1234-1234-1234-123456789012
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+  labels:
+    app: alb-ingress
+  hosts:
+    - host: api.example.com
+  service:
+    port: 80
+nodeSelector: {}
+tolerations: []
+affinity: {}
+persistence:
+  pvc:
+    enabled: true
+    size: 5Gi # Required but ignored in case of EFS
+    accessModes:
+      - ReadWriteMany
+    annotations: {}
+    volumeHandle: "fs-0123456789"
+    storageClass: ~ # Use a specific storage class or leave as '~' for default.
+  hostPath:
+    enabled: false
+    path: "/models"

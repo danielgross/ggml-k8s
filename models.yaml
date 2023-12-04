@@ -1,0 +1,30 @@
+models:
+  # Luna AI Llama 2 Uncensored
+  - url: "https://huggingface.co/TheBloke/Luna-AI-Llama2-Uncensored-GGUF/resolve/main/luna-ai-llama2-uncensored.Q4_K_M.gguf"
+    promptTemplate: |
+      You are a helpful AI assistant.
+      USER: {{.Input}}
+      ASSISTANT:
+    resources:
+      requests:
+        cpu: 8192m
+        memory: 16384Mi
+  # Mistral 7B Instruct 
+  - url: "https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf"
+    promptTemplate: |
+      <s>[INST] {{.Input}} [/INST] 
+    resources:
+      requests:
+        cpu: 8192m
+        memory: 16384Mi
+  # GPT4All-J 6B
+  - url: "https://gpt4all.io/models/ggml-gpt4all-j.bin"
+    promptTemplate: |
+      The prompt below is a question to answer, a task to complete, or a conversation to respond to; decide which and write an appropriate response.
+      ### Prompt:
+      {{.Input}}
+      ### Response:
+    resources:
+      requests:
+        cpu: 8192m
+        memory: 16384Mi

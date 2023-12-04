@@ -1,0 +1,159 @@
+{{- if .Values.models }}
+{{- if gt (len .Values.models) 0 }}
+{{- $root := . }}
+{{- range .Values.models }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "local-ai.fullname" $root }}-{{ include "local-ai.sanitizeName" .name }}
+  namespace: {{ $root.Release.Namespace | quote }}
+  labels:
+    {{- include "local-ai.labels" $ | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "local-ai.name" $ }}
+      app.kubernetes.io/instance: {{ include "local-ai.name" $ }}
+      model: {{ .name }}
+  replicas: {{ .replicaCount }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "local-ai.name" $ }}
+        app.kubernetes.io/instance: {{ include "local-ai.name" $ }}
+        model: {{ .name }}
+      annotations:
+        {{- if .promptTemplate }}
+        checksum/config-prompt-templates: {{ include (print $.Template.BasePath "/configmap-prompt-templates.yaml") $root | sha256sum }}
+        {{- end }}
+    spec:
+      initContainers:
+        {{- if .promptTemplate }}
+        - name: prompt-templates
+          image: busybox
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              cp -fL /prompt-templates/* /models
+          volumeMounts:
+            - mountPath: /prompt-templates
+              name: prompt-templates
+            - mountPath: /models
+              name: models
+        {{ else }}
+        - name: init-prompt-template
+          image: busybox
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              MODEL_DIR={{ $root.Values.deployment.modelsPath }}
+              URL="{{ .url }}"
+              tmpl_file="$MODEL_DIR/$(basename "$URL").tmpl"
+              if [ -f "$tmpl_file" ]; then
+                  echo "Removing template file $tmpl_file as no prompt template is provided."
+                  rm -f "$tmpl_file"
+              fi
+          volumeMounts:
+          - mountPath: {{ $root.Values.deployment.modelsPath }}
+            name: models
+        {{- end }}        
+        - name: download-model
+          image: busybox
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              MODEL_DIR={{ $root.Values.deployment.modelsPath }}
+              FORCE_DOWNLOAD={{ $root.Values.forceDownload }}
+              URL="{{ .url }}"
+
+              mkdir -p "$MODEL_DIR"
+
+              # If the URL is empty, skip this model
+              url="{{ .url }}"
+              auth=$(echo "$line" | awk '{print $2}')
+
+              if [ -n "$url" ]; then
+                  filename=$(basename "$url")
+
+                  if [ "$FORCE_DOWNLOAD" = false ] && [ -f "$MODEL_DIR/$filename" ]; then
+                      echo "File $filename already exists. Skipping download."
+                  else
+                      rm -f "$MODEL_DIR/$filename"
+
+                      echo "Downloading $filename"
+
+                      if [ -n "$auth" ]; then
+                          wget -P "$MODEL_DIR" --header "Authorization: Basic $auth" "$url"
+                      else
+                          wget -P "$MODEL_DIR" "$url"
+                      fi
+
+                      if [ "$?" -ne 0 ]; then
+                          echo "Download failed."
+                      else
+                          echo "Download completed."
+                      fi
+                  fi
+              fi
+          volumeMounts:
+          - mountPath: {{ $root.Values.deployment.modelsPath }}
+            name: models
+      containers:
+        - name: {{ template "local-ai.fullname" $ }}-{{ include "local-ai.sanitizeName" .name }}
+          image: {{ $root.Values.deployment.image }}
+          imagePullPolicy: IfNotPresent
+          resources:
+            {{- toYaml .resources | nindent 12 }}
+          env:
+          {{- range $key, $value := $root.Values.deployment.env }}
+          - name: {{ $key | upper }}
+            value: {{ quote $value }}
+          {{- end }}
+          - name: MODELS_PATH
+            value: {{ $root.Values.deployment.modelsPath }}
+          - name: THREADS
+            value: {{ quote .threads }}
+          # - name: REBUILD
+          #   value: "true"
+          # - name: BUILD_TYPE
+          #   value: "cublas"
+          volumeMounts:
+          - mountPath: {{ $root.Values.deployment.modelsPath }}
+            name: models
+      volumes:
+      {{- if $root.Values.persistence.pvc.enabled }}
+      - name: models
+        persistentVolumeClaim:
+          claimName: efs-claim
+      {{- else if $root.Values.persistence.hostPath.enabled }}
+      - name: models
+        hostPath:
+          path: {{ $root.Values.persistence.hostPath.path }}
+      {{- else }}
+      - name: models
+        emptyDir: {}
+      {{- end }}
+      {{- if .promptTemplate }}
+      - name: prompt-templates
+        configMap:
+          name: {{ template "local-ai.fullname" $root }}-prompt-templates
+      {{- end }}
+      {{- with $root.Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $root.Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $root.Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+  {{- end }}
+{{- end }}
+{{- end }}
