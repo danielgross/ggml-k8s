@@ -1,13 +1,11 @@
 # ggml-k8
 
-Can't find any H100s? Have no fear, with GGML and Kubernetes you can deploy Llama and Mistral using cheap AWS machines!
+Can't find any H100s? Have no fear, with GGML and Kubernetes you can deploy Llama and Mistral using cheap AWS machines! This repo is a proof-of-concept llama.cpp deployment script for EC2 that scales automatically with Kubernetes.
 
 ![image](https://github.com/danielgross/ggml-k8/assets/279531/c64b04eb-bbf5-492b-8edb-c68b25817606)
 <sub>*Image courtesy of [Lexica.art](https://lexica.art/aperture)*</sub>
 
 ----
-
-## Proof-of-concept scalable llama.cpp deployment on EC2 via Kubernetes
 
 ### How to deploy
 #### 1. Setup
