@@ -1,15 +1,13 @@
+# ggml-k8
 
-# Run GGML models on Kubernetes
+Can't find any H100s? MI-250 too buggy? Have no fear, with GGML and Kubernetes you can deploy Llama and Mistral using cheap AWS machines!
 
-## Deploy Llama and Mistral using cheap AWS machines with GGML and Kubernetes!
-
-![llamacppbeiac_ratioed_upscaled]()
-
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-
-The purpose of this repo is being a proof-of-concept for a scalable GGML/llama.cpp based backend on Kubernetes.
+![image](https://github.com/danielgross/ggml-k8/assets/279531/c64b04eb-bbf5-492b-8edb-c68b25817606)
+<sub>*Image courtesy of [Lexica.art](https://lexica.art/aperture)*</sub>
 
 ----
+
+## Proof-of-concept scalable llama.cpp deployment on EC2 via Kubernetes
 
 ### How to deploy
 #### 1. Setup
@@ -51,13 +49,13 @@ make init-cluster-aws
 
 #### 3. Enjoy
 To test the deployed models with curl:
-1. Get the filename from the url, e.g. from https://huggingface.co/TheBloke/Luna-AI-Llama2-Uncensored-GGUF/resolve/main/luna-ai-llama2-uncensored.Q4_K_M.gguf the basename would be `luna-ai-llama2-uncensored.Q4_K_M.gguf`
+1. Get the filename from the url, e.g. from https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/blob/main/mistral-7b-instruct-v0.1.Q5_K_S.gguf the basename would be `mistral-7b-instruct-v0.1.Q5_K_S.gguf`
 2. Remove the extension and replace `_` and `.` with `-` and add `.api.$(YOURDOMAIN)` at the end
 3. Run requests on the model using the same OAI endpoints and adding the model basename from 1. on the `"model"` section of the data
 
 Example:
 ```
-curl https://luna-ai-llama2-uncensored-q4-k-m.api.example.com/v1/chat/completions \
+curl https://mistral-7b-instruct-v0-1-Q5-K-S.api.example.com/v1/chat/completions \
 -H "Content-Type: application/json" \
 -d '{
     "model": "luna-ai-llama2-uncensored.Q4_K_M.gguf",
@@ -72,7 +70,7 @@ TODO: Create a proxy redirecting requests to the correct services automatically 
 ### Uploading new models
 To upload a new model, identify the model's url, prompt template, requested resources and change the `models.yaml` file by adding the model following this example structure:
 ```yaml
-  - url: "https://huggingface.co/TheBloke/Luna-AI-Llama2-Uncensored-GGUF/resolve/main/luna-ai-llama2-uncensored.Q4_K_M.gguf"
+  - url: "https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/blob/main/mistral-7b-instruct-v0.1.Q5_K_S.gguf"
     promptTemplate: |
       You are a helpful AI assistant.
       USER: {{.Input}}
@@ -111,5 +109,6 @@ make destroy-terraform-aws
 
 Feel free to open an issue or a PR if you have any suggestions or questions!
 
+----
 ### Authors 
 [danielgross](https://github.com/codethazine) and [codethazine](https://github.com/codethazine).
