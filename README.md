@@ -49,9 +49,9 @@ make init-cluster-aws
 
 #### 3. Enjoy
 To test the deployed models with curl:
-1. Get the filename from the url, e.g. from https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/blob/main/mistral-7b-instruct-v0.1.Q5_K_S.gguf the basename would be `mistral-7b-instruct-v0.1.Q5_K_S.gguf`
-2. Remove the extension and replace `_` and `.` with `-` and add `.api.$(YOURDOMAIN)` at the end
-3. Run requests on the model using the same OAI endpoints and adding the model basename from 1. on the `"model"` section of the data
+1. Get the filename from the url, e.g. from https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/blob/main/mistral-7b-instruct-v0.1.Q5_K_S.gguf the basename would be `mistral-7b-instruct-v0.1.Q5_K_S.gguf`.
+2. Remove the extension and replace `_` and `.` with `-` and add `.api.$(YOURDOMAIN)` at the end.
+3. Run requests on the model using the same OAI endpoints and adding the model basename from 1. on the `"model"` section of the data.
 
 Example:
 ```
@@ -101,11 +101,11 @@ make destroy-terraform-aws
 - When a promptTemplate is defined, this is also used for the `/v1/completions` endpoint. This might be fixed in the future on LocalAI's end, in the meanwhile, if you just need to use the `/v1/completions` endpoint, make sure to not define the promptTemplate for the model on the `models.yaml` file at all.
 
 ### TO-DOs:
-  - [ ] Add a proxy to redirect requests to the correct service and potentially collect all the /v1/models responses on a single endpoint
-  - [ ] Solve thread safety issues on [Llama.cpp](https://github.com/ggerganov/llama.cpp/issues/3960)
-  - [ ] Make the backend more scalable by adding more nodes to the Kubernetes cluster automatically through an autoscaling group
-  - [ ] Test the backend on GPU enabled nodes
-  - [ ] Add support for other cloud providers
+  - [ ] Add a proxy to redirect requests to the correct service and potentially collect all the /v1/models responses on a single endpoint.
+  - [ ] Solve thread safety issues on [Llama.cpp](https://github.com/ggerganov/llama.cpp/issues/3960).
+  - [ ] Make the backend more scalable by adding more nodes to the Kubernetes cluster automatically through an autoscaling group.
+  - [ ] Test the backend on GPU enabled nodes.
+  - [ ] Add support for other cloud providers.
 
 Feel free to open an issue or a PR if you have any suggestions or questions!
 
