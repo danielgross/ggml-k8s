@@ -97,8 +97,8 @@ make destroy-terraform-aws
 - The requests can run in parallel thanks to an abstracted thread pool, through the use of multiple [LocalAI](https://github.com/mudler/LocalAI) horizontally scaled server instances.
 
 ### TO-DOs:
+  - [ ] Proper load testing 
   - [ ] Add a proxy to redirect requests to the correct service and potentially collect all the /v1/models responses on a single endpoint.
-  - [ ] Solve thread safety issues on [Llama.cpp](https://github.com/ggerganov/llama.cpp/issues/3960).
   - [ ] Make the backend more scalable by adding more nodes to the Kubernetes cluster automatically through an autoscaling group.
   - [ ] Test the backend on GPU enabled nodes.
   - [ ] Add support for other cloud providers.
