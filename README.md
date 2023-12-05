@@ -94,7 +94,7 @@ make destroy-terraform-aws
 ## Extra considerations
 - The backend is currently set up on a single c5.18xlarge node in the `.env.example`, which might not be the best for your production environment. Make sure to change your .env file's `MIN_CLUSTER_SIZE` and `EC2_INSTANCE_TYPE` variables according to your needs.
 - When a promptTemplate is defined, this is also used for the `/v1/completions` endpoint. This might be fixed in the future on LocalAI's end, in the meanwhile, if you just need to use the `/v1/completions` endpoint, make sure to not define the promptTemplate for the model on the `models.yaml` file at all.
-- The requests can run in parallel thanks to an abstracted thread pool, through the use of multiple LocalAI horizontally scaled server instances (thank you [LocalAI](https://github.com/mudler/LocalAI)).
+- The requests can run in parallel thanks to an abstracted thread pool, through the use of multiple [LocalAI](https://github.com/mudler/LocalAI) horizontally scaled server instances.
 
 ### TO-DOs:
   - [ ] Add a proxy to redirect requests to the correct service and potentially collect all the /v1/models responses on a single endpoint.
