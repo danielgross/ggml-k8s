@@ -56,7 +56,7 @@ Example:
 curl https://mistral-7b-instruct-v0-1-Q5-K-S.api.example.com/v1/chat/completions \
 -H "Content-Type: application/json" \
 -d '{
-    "model": "luna-ai-llama2-uncensored.Q4_K_M.gguf",
+    "model": "mistral-7b-instruct-v0.1.Q5_K_S.gguf",
     "messages": [
         {"role": "user", "content": "How are you?"}
     ],
@@ -70,9 +70,7 @@ To upload a new model, identify the model's url, prompt template, requested reso
 ```yaml
   - url: "https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/blob/main/mistral-7b-instruct-v0.1.Q5_K_S.gguf"
     promptTemplate: |
-      You are a helpful AI assistant.
-      USER: {{.Input}}
-      ASSISTANT:
+      <s>[INST] {{.Input}} [/INST] 
     resources:
       requests:
         cpu: 8192m
@@ -94,9 +92,9 @@ make destroy-terraform-aws
 ----
 
 ## Extra considerations
-- The backend is currently deployed on a single node, which is not recommended for production environments. Change the `terraform/aws/14-eks-node-group.tf` according to your needs.
-- The requests can run parallely thanks to an abstracted thread pool, through the use of multiple LocalAI horizontally scaled server instances (shout-out to the [LocalAI](https://github.com/mudler/LocalAI) team btw).
+- The backend is currently set up on a single c5.18xlarge node in the `.env.example`, which might not be the best for your production environment. Make sure to change your .env file's `MIN_CLUSTER_SIZE` and `EC2_INSTANCE_TYPE` variables according to your needs.
 - When a promptTemplate is defined, this is also used for the `/v1/completions` endpoint. This might be fixed in the future on LocalAI's end, in the meanwhile, if you just need to use the `/v1/completions` endpoint, make sure to not define the promptTemplate for the model on the `models.yaml` file at all.
+- The requests can run parallely thanks to an abstracted thread pool, through the use of multiple LocalAI horizontally scaled server instances (shout-out to the [LocalAI](https://github.com/mudler/LocalAI) team btw).
 
 ### TO-DOs:
   - [ ] Add a proxy to redirect requests to the correct service and potentially collect all the /v1/models responses on a single endpoint.
@@ -109,4 +107,4 @@ Feel free to open an issue or a PR if you have any suggestions or questions!
 
 ----
 ### Authors 
-[danielgross](https://github.com/codethazine) and [codethazine](https://github.com/codethazine).
+[danielgross](https://github.com/danielgross) and [codethazine](https://github.com/codethazine).
