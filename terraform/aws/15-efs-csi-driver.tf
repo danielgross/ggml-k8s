@@ -74,8 +74,7 @@ resource "null_resource" "eks_addon" {
         eksctl get addon --cluster LlamaCppEKSCluster --name aws-efs-csi-driver && break || true
         if [ $i -eq $RETRIES ]; then
           echo "Failed to get addon after $RETRIES attempts, trying to create..."
-          eksctl create addon --cluster LlamaCppEKSCluster --name aws-efs-csi-driver --version latest \
-          --service-account-role-arn arn:aws:iam::351444663896:role/eks-cluster-LlamaCppEKSCluster --force && break
+          eksctl create addon --cluster LlamaCppEKSCluster --name aws-efs-csi-driver --version latest --force && break
         fi
         echo "Attempt $i failed, retrying in 60 seconds..."
         sleep 60
