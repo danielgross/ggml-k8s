@@ -1,3 +1,8 @@
+variable "aws_account_id" {
+  description = "AWS Account ID"
+  type        = string
+}
+
 resource "aws_security_group" "efs" {
   name        = "llamacpp-efs"
   description = "Allow traffic"
@@ -69,12 +74,13 @@ resource "null_resource" "eks_addon" {
 
   provisioner "local-exec" {
     command = <<EOT
-      RETRIES=10
+      RETRIES=15
       for i in $(seq 1 $RETRIES); do
         eksctl get addon --cluster LlamaCppEKSCluster --name aws-efs-csi-driver && break || true
         if [ $i -eq $RETRIES ]; then
           echo "Failed to get addon after $RETRIES attempts, trying to create..."
-          eksctl create addon --cluster LlamaCppEKSCluster --name aws-efs-csi-driver --version latest --force && break
+          eksctl create addon --cluster LlamaCppEKSCluster --name aws-efs-csi-driver --version latest \
+          --service-account-role-arn arn:aws:iam::${var.aws_account_id}:role/eks-cluster-LlamaCppEKSCluster --force && break
         fi
         echo "Attempt $i failed, retrying in 60 seconds..."
         sleep 60
