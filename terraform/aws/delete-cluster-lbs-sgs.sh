@@ -3,12 +3,25 @@
 # Get the VPC ID from AWS CLI
 VPC_ID=$(aws ec2 describe-vpcs --query "Vpcs[?Tags[?Key=='Name' && Value=='llamacpp-vpc']].VpcId | [0]" --output text)
 
+# Get the ARNs of the load balancers in the VPC
+LB_ARNS=$(aws elbv2 describe-load-balancers --query "LoadBalancers[?VpcId=='$VPC_ID'].LoadBalancerArn" --output text)
+
+# Delete load balancers
+if [ -n "$LB_ARNS" ]; then
+    echo "$LB_ARNS" | while read LB_ARN
+    do
+        echo "Deleting load balancer with ARN: $LB_ARN"
+        aws elbv2 delete-load-balancer --load-balancer-arn "$LB_ARN"
+    done
+else
+    echo "No load balancers found to delete for VPC_ID: $VPC_ID"
+fi
+
 # Get the security group IDs and names
 SG_INFO=$(aws ec2 describe-security-groups --query "SecurityGroups[?VpcId=='$VPC_ID' && GroupName!='default'].[GroupId,GroupName]" --output text)
 
-# Check if SG_INFO is not empty
+# Delete security groups
 if [ -n "$SG_INFO" ]; then
-    # Loop through the security group IDs and delete each one
     echo "$SG_INFO" | while read SG_ID SG_NAME
     do
         echo "Deleting security group with ID: $SG_ID, Name: $SG_NAME"

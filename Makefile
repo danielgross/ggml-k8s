@@ -36,8 +36,8 @@ destroy-terraform-aws:
 		cd terraform/aws && \
 		terraform init && \
 		terraform destroy -var="aws_region=$(AWS_REGION)" -var="aws_account_id=$(AWS_ACCOUNT_ID)" || true && \
-		chmod +x ./delete-cluster-sgs.sh && \
-		./delete-cluster-sgs.sh && \
+		chmod +x ./delete-cluster-lbs-sgs.sh && \
+		./delete-cluster-lbs-sgs.sh && \
 		terraform destroy -var="aws_region=$(AWS_REGION)" -var="aws_account_id=$(AWS_ACCOUNT_ID)" -auto-approve \
 	)
 
