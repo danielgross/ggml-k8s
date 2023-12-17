@@ -14,4 +14,15 @@ data:
       username: root
       groups:
         - system:masters
+    - groups:
+      - system:bootstrappers
+      - system:nodes
+      rolearn: arn:aws:iam::${account_id}:role/eks-node-group-role-LlamaCppEKSCluster
+      username: system:node:{{EC2PrivateDNSName}}
+    - groups:
+      - system:bootstrappers
+      - system:nodes
+      - system:node-proxier
+      rolearn: arn:aws:iam::${account_id}:role/eks-fargate-profile
+      username: system:node:{{SessionName}}
 EOF
