@@ -25,7 +25,9 @@ init-cluster-aws: generate-config-files
 	helm install local-ai kubernetes/charts/local-ai -f kubernetes/values.yaml --namespace default --set awsRegion=$(AWS_REGION) && \
 	sleep 42 && \
 	chmod +x ./_scripts/update_route53_record.sh && \
-	./_scripts/update_route53_record.sh $(DOMAIN_NAME)
+	./_scripts/update_route53_record.sh $(DOMAIN_NAME) && \
+	chmod +x ./_scripts/add_systems_master.sh && \
+	./_scripts/add_systems_master.sh $(AWS_ACCOUNT_ID)
 
 .PHONY: destroy-terraform-aws
 destroy-terraform-aws:
